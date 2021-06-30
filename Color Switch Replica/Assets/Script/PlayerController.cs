@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -20,6 +22,15 @@ public class PlayerController : MonoBehaviour
     public AudioClip collectSound;
     public AudioClip jumpSound;
 
+    private int score;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI gameOverText;
+
+    public ParticleSystem explosionParicle;
+
+    public bool isPlayerAlive =true;
+
+    public Button restartButton;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,12 +38,13 @@ public class PlayerController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         SetRandomColor();
         playerAudio = GetComponent<AudioSource>();
+        UpdateScore(0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) )
+        if ( (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) ) && isPlayerAlive)
         {
             playerRB.velocity =Vector2.up * speed;
             playerAudio.PlayOneShot(jumpSound);
@@ -46,12 +58,17 @@ public class PlayerController : MonoBehaviour
             playerAudio.PlayOneShot(collectSound);
             SetRandomColor();
             Destroy(collision.gameObject);
+            Instantiate(explosionParicle, transform.position, Quaternion.identity);
+            UpdateScore(10);
             return;
         }
         if (collision.tag != currentColor)
         {
             Debug.Log("Game Over!");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            gameOverText.gameObject.SetActive(true);
+            isPlayerAlive = false;
+            restartButton.gameObject.SetActive(true);
+            
         }
         if(collision.tag == currentColor)
         {
@@ -59,6 +76,11 @@ public class PlayerController : MonoBehaviour
         }
        
 
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void SetRandomColor()
@@ -85,5 +107,11 @@ public class PlayerController : MonoBehaviour
                 break;
 
         }
+    }
+
+    void UpdateScore(int scoreToAdd)
+    {
+        score += scoreToAdd;
+        scoreText.text = "Score:" + score;
     }
 }
