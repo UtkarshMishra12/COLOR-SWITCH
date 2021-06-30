@@ -14,13 +14,19 @@ public class PlayerController : MonoBehaviour
     public Color colorYellow;
     public Color colorPink;
     public Color colorMagenta;
-    
+
+    private AudioSource playerAudio;
+    public AudioClip sound;
+    public AudioClip collectSound;
+    public AudioClip jumpSound;
+
     // Start is called before the first frame update
     void Start()
     {
         playerRB = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         SetRandomColor();
+        playerAudio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -29,6 +35,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) )
         {
             playerRB.velocity =Vector2.up * speed;
+            playerAudio.PlayOneShot(jumpSound);
         }
     }
 
@@ -36,6 +43,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("ColorChanger"))
         {
+            playerAudio.PlayOneShot(collectSound);
             SetRandomColor();
             Destroy(collision.gameObject);
             return;
@@ -44,6 +52,10 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Game Over!");
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        if(collision.tag == currentColor)
+        {
+            playerAudio.PlayOneShot(sound);
         }
        
 
